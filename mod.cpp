@@ -93,7 +93,7 @@ class CPP_IWYU_Module : public maiken::Module {
     auto compileStr = c_unit.compileString().substr(c_unit.compiler.size());
     p << compileStr.substr(0, compileStr.rfind(" -o"));
     if (node["args"]) p << node["args"].Scalar();
-    if (node["inc"]) for (const auto& inc : node["inc"].Scalar()) p << std::string{"-I"+inc};
+    if (node["inc"]) for (const auto& inc : node["inc"].Scalar()) p << std::string{"-I"}+inc;
     if (node["headers"]) p << node["headers"].Scalar();
     p << f.escm();
     KLOG(DBG) << p;

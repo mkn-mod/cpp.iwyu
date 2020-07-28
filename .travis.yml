@@ -14,6 +14,8 @@ matrix:
         - sourceline: 'ppa:ubuntu-toolchain-r/test'
         packages:
           - g++-8
+          - clang++-8
+          - iwyu
     env:
       - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
   - os: osx
