@@ -15,5 +15,5 @@ jobs:
     - run: |
         git clone https://github.com/dekken/maiken -b master --depth 1 --recursive
         cd maiken && make nix && cp mkn .. && cd ..
-        KLOG=3 ./mkn clean build -dtOp iwyu
+        KLOG=3 ./mkn clean build -dtOp iwyu -a -std=c++17
 
