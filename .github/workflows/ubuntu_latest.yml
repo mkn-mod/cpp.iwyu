@@ -12,6 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - run: sudo apt-get install iwyu
+
     - run: |
         git clone https://github.com/dekken/maiken -b master --depth 1 --recursive
         cd maiken && make nix && cp mkn .. && cd ..
