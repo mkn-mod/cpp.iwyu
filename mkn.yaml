@@ -1,0 +1,26 @@
+
+name: cpp.iwyu
+version: master
+property:
+    maiken_location: ${MKN_HOME}/app/mkn/${version}
+    maiken_scm: https://github.com/mkn/mkn
+
+parent: base
+src: mod.cpp
+mode: shared
+
+profile:
+- name: base
+  dep: mkn#${version}&${maiken_location}(${maiken_scm})[mod]
+  if_arg:
+      win_shared: -DYAML_CPP_DLL
+      shared: -DKUL_SHARED
+
+- name: format
+  mod: |
+    clang.format{init{style: google, paths: .}}
+
+- name: iwyu
+  parent: base
+  mod: |
+    cpp.iwyu{init{args: -std=c++17, paths: .}}
