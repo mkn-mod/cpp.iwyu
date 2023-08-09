@@ -33,15 +33,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unordered_set>         // for unordered_set
 #include <utility>               // for pair
 #include <vector>                // for vector
-#include "kul/cli.hpp"           // for asArgs
-#include "kul/defs.hpp"          // for KUL_PUBLISH
-#include "kul/except.hpp"        // for Exception, KEXCEPT, KTHROW
-#include "kul/log.hpp"           // for KLOG, KLOG_INF, KLOG_DBG
-#include "kul/map.hpp"           // for Map
-#include "kul/os.hpp"            // for Dir, File, WHICH, Exception, PushDir
-#include "kul/proc.hpp"          // for Process, AProcess, ExitException
-#include "kul/string.hpp"        // for String
-#include "kul/yaml.hpp"          // for NodeValidator, Validator, yaml
+#include "mkn/kul/cli.hpp"           // for asArgs
+#include "mkn/kul/defs.hpp"          // for KUL_PUBLISH
+#include "mkn/kul/except.hpp"        // for Exception, KEXCEPT, KTHROW
+#include "mkn/kul/log.hpp"           // for KLOG, KLOG_INF, KLOG_DBG
+#include "mkn/kul/map.hpp"           // for Map
+#include "mkn/kul/os.hpp"            // for Dir, File, WHICH, Exception, PushDir
+#include "mkn/kul/proc.hpp"          // for Process, AProcess, ExitException
+#include "mkn/kul/string.hpp"        // for String
+#include "mkn/kul/yaml.hpp"          // for NodeValidator, Validator, yaml
 #include "maiken/app.hpp"        // for Application
 #include "maiken/module.hpp"     // for Module
 #include "maiken/module/init.hpp"// IWYU pragma: keep
@@ -52,10 +52,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mkn::mod::iwyu {
 
-class Exception : public kul::Exception {
+class Exception : public mkn::kul::Exception {
  public:
   Exception(char const* f, uint16_t const& l, std::string const& s)
-      : kul::Exception(f, l, s) {}
+      : mkn::kul::Exception(f, l, s) {}
 };
 }
 
@@ -73,12 +73,12 @@ class CPP_IWYU_Module : public maiken::Module {
   static std::string find_iwyu(){
     std::vector<std::string> iwyu{"iwyu", "include-what-you-use"};
     for(auto const& str : iwyu)
-      if(kul::env::WHICH(str)) return str;
+      if(mkn::kul::env::WHICH(str)) return str;
     KEXCEPT(mkn::mod::iwyu::Exception, "Failed to find valid iwyu binary, check PATH");
   }
 
   static void VALIDATE_NODE(YAML::Node const& node) {
-    using namespace kul::yaml;
+    using namespace mkn::kul::yaml;
     Validator({NodeValidator("inc"), NodeValidator("args"), NodeValidator("ignore"),
                NodeValidator("headers"),
                NodeValidator("paths"), NodeValidator("types")})
@@ -86,10 +86,10 @@ class CPP_IWYU_Module : public maiken::Module {
   }
 
   template <typename C_Unit>
-  void CHECK(std::string const& proc, C_Unit c_unit, kul::File&& f, YAML::Node const& node) {
+  void CHECK(std::string const& proc, C_Unit c_unit, mkn::kul::File&& f, YAML::Node const& node) {
     if (node["ignore"]) if(f.escm().find(node["ignore"].Scalar()) != std::string::npos) return;
 
-    kul::Process p(proc);
+    mkn::kul::Process p(proc);
     auto compileStr = c_unit.compileString().substr(c_unit.compiler.size());
     p << compileStr.substr(0, compileStr.rfind(" -o"));
     if (node["args"]) p << node["args"].Scalar();
@@ -99,17 +99,17 @@ class CPP_IWYU_Module : public maiken::Module {
     KLOG(DBG) << p;
     try{
       p.start();
-    }catch(kul::proc::ExitException const& e){}
+    }catch(mkn::kul::proc::ExitException const& e){}
   }
   void run(App& a, YAML::Node const& node) KTHROW(std::exception) {
     VALIDATE_NODE(node);
-    kul::os::PushDir pushd(a.project().dir());
+    mkn::kul::os::PushDir pushd(a.project().dir());
 
     std::unordered_set<std::string> types;
     if (!node["types"]) {
       types = {"cpp", "cxx", "cc", "cc", "h", "hpp"};
     } else
-      for (const auto& s : kul::String::SPLIT(node["types"].Scalar(), ":")) types.insert(s);
+      for (const auto& s : mkn::kul::String::SPLIT(node["types"].Scalar(), ":")) types.insert(s);
 
     std::unordered_set<std::string> files;
 
@@ -120,9 +120,9 @@ class CPP_IWYU_Module : public maiken::Module {
           for (const auto& p3 : p2.second) files.insert(p3.in());
 
     if (node["paths"]){
-      for (const auto& path : kul::cli::asArgs(node["paths"].Scalar())) {
-        kul::Dir d(path);
-        if (!d) KEXCEPT(kul::fs::Exception, "Directory does not exist: ") << d.path();
+      for (const auto& path : mkn::kul::cli::asArgs(node["paths"].Scalar())) {
+        mkn::kul::Dir d(path);
+        if (!d) KEXCEPT(mkn::kul::fs::Exception, "Directory does not exist: ") << d.path();
         for (const auto& file : d.files(1)) {
           const std::string name = file.name();
           if (name.find(".") == std::string::npos) continue;
@@ -136,7 +136,7 @@ class CPP_IWYU_Module : public maiken::Module {
     maiken::ThreadingCompiler tc(a);
     using Pair = std::pair<maiken::Source, std::string>;
     for (const auto& file : files)
-      CHECK(proc, tc.compilationUnit(Pair{kul::File(file).escm()+".cpp", "obj"}), kul::File(file), node);
+      CHECK(proc, tc.compilationUnit(Pair{mkn::kul::File(file).escm()+".cpp", "obj"}), mkn::kul::File(file), node);
   }
 };
 
