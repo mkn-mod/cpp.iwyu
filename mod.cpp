@@ -90,7 +90,8 @@ class Module : public maiken::Module {
     p << compileStr.substr(0, compileStr.rfind(" -o"));
     if (node["args"]) p << node["args"].Scalar();
     if (node["inc"])
-      for (const auto& inc : node["inc"].Scalar()) p << std::string{"-I"} + inc;
+      for (const auto& inc : mkn::kul::cli::asArgs(node["inc"].Scalar()))
+        p << std::string{"-I"} + inc;
     if (node["headers"]) p << node["headers"].Scalar();
     p << f.escm();
     KLOG(DBG) << p;
