@@ -2,10 +2,8 @@
 
 ** Compile stage plugin to to run include-what-you-use on all applicable files **
 
-[![Travis](https://travis-ci.org/mkn-mod/cpp.iwyu.svg?branch=master)](https://travis-ci.org/mkn-mod/cpp.iwyu)
-
 ## Prerequisites
-  [maiken](https://github.com/Dekken/maiken)
+  [maiken](https://github.com/mkn/mkn)
 
 ## Usage
 
@@ -18,8 +16,7 @@ mod:
     inc: inc/1 inc/2            # additional include directories
     paths: search/dir           # scan directories
     ignore: src/python3         # if file found has path that contains string ignore
-
-
+    types: cpp hpp cc           # file types checked default:  {"cpp", "cxx", "cc", "cc", "h", "hpp"}
 
 ```
 

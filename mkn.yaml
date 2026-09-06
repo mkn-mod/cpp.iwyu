@@ -11,10 +11,10 @@ mode: shared
 
 profile:
 - name: base
-  dep: mkn#${version}&${maiken_location}(${maiken_scm})[mod]
+  dep: mkn.mod mkn#${version}&${maiken_location}(${maiken_scm})[headers]
   if_arg:
       win_shared: -DYAML_CPP_DLL
-      shared: -DKUL_SHARED
+      shared: -DMKN_KUL_SHARED
 
 - name: format
   mod: |
