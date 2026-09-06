@@ -3,7 +3,7 @@
 ** Compile stage plugin to to run include-what-you-use on all applicable files **
 
 ## Prerequisites
-  [maiken](https://github.com/Dekken/maiken)
+  [maiken](https://github.com/mkn/mkn)
 
 ## Usage
 
