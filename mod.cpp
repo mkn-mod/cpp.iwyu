@@ -28,21 +28,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdint.h>            // for uint16_t
-#include <string>              // for string, allocator, operator+, basic_...
-#include <unordered_set>       // for unordered_set
-#include <utility>             // for pair
-#include <vector>              // for vector
-#include "mkn/kul/cli.hpp"     // for asArgs
-#include "mkn/kul/defs.hpp"    // for MKN_KUL_PUBLISH
-#include "mkn/kul/except.hpp"  // for Exception, KEXCEPT, KTHROW
-#include "mkn/kul/log.hpp"     // for KLOG, KLOG_INF, KLOG_DBG
-#include "mkn/kul/map.hpp"     // for Map
-#include "mkn/kul/os.hpp"      // for Dir, File, WHICH, Exception, PushDir
-#include "mkn/kul/proc.hpp"    // for Process, AProcess, ExitException
-#include "mkn/kul/string.hpp"  // for String
-#include "mkn/kul/yaml.hpp"    // for NodeValidator, Validator, yaml
-#include "mkn/mod/init.hpp"    // IWYU pragma: keep
+
+#include "mkn/mod/init.hpp"  // IWYU pragma: keep
+
+#include <stdint.h>              // for uint16_t
+#include <string>                // for string, allocator, operator+, basic_...
+#include <unordered_set>         // for unordered_set
+#include <utility>               // for pair
+#include <vector>                // for vector
+#include "mkn/kul/cli.hpp"       // for asArgs
+#include "mkn/kul/defs.hpp"      // for MKN_KUL_PUBLISH
+#include "mkn/kul/except.hpp"    // for Exception, KEXCEPT, KTHROW
+#include "mkn/kul/log.hpp"       // for KLOG, KLOG_INF, KLOG_DBG
+#include "mkn/kul/map.hpp"       // for Map
+#include "mkn/kul/os.hpp"        // for Dir, File, WHICH, Exception, PushDir
+#include "mkn/kul/proc.hpp"      // for Process, AProcess, ExitException
+#include "mkn/kul/string.hpp"    // for String
+#include "mkn/kul/yaml.hpp"      // for NodeValidator, Validator, yaml
 #include "yaml-cpp/node/impl.h"  // for Node::operator[], Node::Scalar
 #include "yaml-cpp/node/node.h"  // for Node
 
@@ -68,7 +70,7 @@ class Module : public mkn::mod::Module {
   }
 
   void CHECK(std::string const& proc, std::string const& compileCmd, kul::File&& f,
-            YAML::Node const& node) {
+             YAML::Node const& node) {
     if (node["ignore"])
       if (f.escm().find(node["ignore"].Scalar()) != std::string::npos) return;
 
