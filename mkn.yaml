@@ -22,8 +22,6 @@ profile:
 - name: iwyu
   parent: base
   src: mod.cpp
-  mod:
-  - name: cpp.iwyu
-    compile:
-      fix: --nocomments --nosafe_headers
-      system_last: true
+  # inline form, the list form resolves the module from the default branch in CI
+  mod: |
+    cpp.iwyu{compile{fix: --nocomments --nosafe_headers, system_last: true}}
