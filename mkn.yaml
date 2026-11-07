@@ -18,9 +18,12 @@ profile:
   mod: |
     clang.format{init{style: file, paths: .}}
 
-# runs iwyu over this module's own source
+# runs iwyu over this module's own source and applies its suggestions
 - name: iwyu
   parent: base
   src: mod.cpp
-  mod: |
-    cpp.iwyu{compile{}}
+  mod:
+  - name: cpp.iwyu
+    compile:
+      fix: --nocomments --nosafe_headers
+      system_last: true
