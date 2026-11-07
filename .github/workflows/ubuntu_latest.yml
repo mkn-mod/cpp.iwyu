@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - run: sudo apt-get install iwyu
+    - run: sudo apt-get update && sudo apt-get install -y iwyu
 
     - run: |
         $CURL_GET -o mkn ${PATH_GET}/mkn_nix

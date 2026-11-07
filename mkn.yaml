@@ -1,9 +1,7 @@
+#! clean build -dtOa "-std=c++20 -fPIC" -p iwyu
 
 name: cpp.iwyu
 version: master
-property:
-    maiken_location: ${MKN_HOME}/app/mkn/${version}
-    maiken_scm: https://github.com/mkn/mkn
 
 parent: base
 src: mod.cpp
@@ -11,16 +9,18 @@ mode: shared
 
 profile:
 - name: base
-  dep: mkn.mod mkn#${version}&${maiken_location}(${maiken_scm})[headers]
+  dep: mkn.mod
   if_arg:
       win_shared: -DYAML_CPP_DLL
       shared: -DMKN_KUL_SHARED
 
 - name: format
   mod: |
-    clang.format{init{style: google, paths: .}}
+    clang.format{init{style: file, paths: .}}
 
+# runs iwyu over this module's own source
 - name: iwyu
   parent: base
+  src: mod.cpp
   mod: |
-    cpp.iwyu{init{args: -std=c++17, paths: .}}
+    cpp.iwyu{compile{}}
