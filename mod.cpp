@@ -255,7 +255,7 @@ class Module : public mkn::mod::Module {
     if (node["paths"]) {
       for (auto const& path : kul::cli::asArgs(node["paths"].Scalar())) {
         kul::Dir d(path);
-        if (!d) KEXCEPT(kul::fs::Exception, "Directory does not exist: ", d.path());
+        if (!d) KEXCEPT(kul::fsys::Exception, "Directory does not exist: ", d.path());
         for (auto const& file : d.files(1))
           if (types.count(extension(file.name()))) files.insert(file.real());
       }
@@ -278,7 +278,7 @@ class Module : public mkn::mod::Module {
       kul::Dir dir(buildDir);
       dir.mk();
       kul::File iwyu_out("iwyu.out", dir);
-      kul::io::Writer(iwyu_out) << out;
+      kul::io::Writer(iwyu_out.full()) << out;
 
       bool const system_last = node["system_last"] && node["system_last"].Scalar() == "true";
       std::map<std::string, std::string> before;
