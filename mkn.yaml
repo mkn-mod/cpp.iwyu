@@ -1,6 +1,10 @@
 #! clean build -dtOa "-std=c++20 -fPIC" -p iwyu
 
 name: cpp.iwyu
+property:
+  # dependency versions: master on master (not the default branch: mkn.mod's and parse.yaml's is
+  #  the rolling latest, whose mkn.kul differs from a master project's)
+  mkn.mod.version: master
 version: master
 
 parent: base
@@ -9,13 +13,13 @@ mode: shared
 
 profile:
 - name: base
-  dep: mkn.mod
+  dep: mkn.mod#${mkn.mod.version}
   if_arg:
       shared: -DMKN_KUL_SHARED
 
 - name: format
   mod: |
-    clang.format{init{style: file, paths: .}}
+    clang.format#master{init{style: file, paths: .}}
 
 # runs iwyu over this module's own source and applies its suggestions
 - name: iwyu
@@ -23,4 +27,4 @@ profile:
   src: mod.cpp
   # inline form, the list form resolves the module from the default branch in CI
   mod: |
-    cpp.iwyu{compile{fix: --nocomments --nosafe_headers, system_last: true}}
+    cpp.iwyu#master{compile{fix: --nocomments --nosafe_headers, system_last: true}}
