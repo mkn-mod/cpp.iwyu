@@ -2,7 +2,7 @@
 
 name: cpp.iwyu
 property:
-  # dependency versions: master on master (not the default branch: mkn.mod's and parse.yaml's is
+  # dependency versions: master on master (not the default branch: mkn.mod's is
   #  the rolling latest, whose mkn.kul differs from a master project's)
   mkn.mod.version: master
 version: master
