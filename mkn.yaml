@@ -1,6 +1,10 @@
 #! clean build -dtOa "-std=c++20 -fPIC" -p iwyu
 
 name: cpp.iwyu
+property:
+  # dependency versions: master on master (not the default branch: mkn.mod's and parse.yaml's is
+  #  the rolling latest, whose mkn.kul differs from a master project's)
+  mkn.mod.version: master
 version: master
 
 parent: base
@@ -9,7 +13,7 @@ mode: shared
 
 profile:
 - name: base
-  dep: mkn.mod
+  dep: mkn.mod#${mkn.mod.version}
   if_arg:
       shared: -DMKN_KUL_SHARED
 
