@@ -30,6 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "mkn/mod/init.hpp"  // IWYU pragma: keep
+#include "mkn/kul/bon.hpp"
 #include "mkn/mod/def.hpp"
 
 #include "mkn/kul/cli.hpp"
@@ -42,8 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mkn/kul/os.hpp"
 #include "mkn/kul/proc.hpp"
 #include "mkn/kul/string.hpp"
-#include "mkn/kul/yaml.hpp"
-#include "yaml-cpp/yaml.h"
 
 #include <cstddef>
 #include <fstream>
@@ -58,7 +57,7 @@ namespace mkn::mod::cpp::iwyu {
 
 class Module : public mkn::mod::Module {
  public:
-  void compile(mkn::mod::Context& ctx, YAML::Node const& node) override { run(ctx, node); }
+  void compile(mkn::mod::Context& ctx, mkn::mod::Node const& node) override { run(ctx, node); }
 
  protected:
   static std::string find_iwyu() {
@@ -104,12 +103,8 @@ class Module : public mkn::mod::Module {
     }
   }
 
-  static void VALIDATE_NODE(YAML::Node const& node) {
-    using namespace kul::yaml;
-    Validator({NodeValidator("inc"), NodeValidator("args"), NodeValidator("ignore"),
-               NodeValidator("headers"), NodeValidator("paths"), NodeValidator("types"),
-               NodeValidator("fix"), NodeValidator("system_last")})
-        .validate(node);
+  static void VALIDATE_NODE(mkn::mod::Node const& node) {
+    mkn::kul::bon::validate(node, {"inc", "args", "ignore", "headers", "paths", "types", "fix", "system_last"});
   }
 
   // flags of the real compile command, without compiler prefix (e.g. ccache),
@@ -199,20 +194,20 @@ class Module : public mkn::mod::Module {
 
   // returns iwyu's output, empty if ignored
   std::string CHECK(std::string const& proc, std::string const& compileCmd, kul::File&& f,
-                    YAML::Node const& node) {
-    if (node["ignore"])
-      for (auto const& ignore : mkn::kul::cli::asArgs(node["ignore"].Scalar()))
+                    mkn::mod::Node const& node) {
+    if (node.find("ignore"))
+      for (auto const& ignore : mkn::kul::cli::asArgs(node["ignore"].str()))
         if (f.escm().find(ignore) != std::string::npos) return "";
 
     kul::Process p(proc);
     for (auto const& arg : compile_args(compileCmd)) p << arg;
-    if (node["args"])
-      for (auto const& arg : mkn::kul::cli::asArgs(node["args"].Scalar())) p << arg;
-    if (node["inc"])
-      for (auto const& inc : mkn::kul::cli::asArgs(node["inc"].Scalar()))
+    if (node.find("args"))
+      for (auto const& arg : mkn::kul::cli::asArgs(node["args"].str())) p << arg;
+    if (node.find("inc"))
+      for (auto const& inc : mkn::kul::cli::asArgs(node["inc"].str()))
         p << std::string{"-I"} + inc;
-    if (node["headers"] && is_header(f.name()))
-      for (auto const& arg : mkn::kul::cli::asArgs(node["headers"].Scalar())) p << arg;
+    if (node.find("headers") && is_header(f.name()))
+      for (auto const& arg : mkn::kul::cli::asArgs(node["headers"].str())) p << arg;
     p << f.escm();
     KLOG(DBG) << p;
     mkn::kul::ProcessCapture pc(p);
@@ -236,15 +231,15 @@ class Module : public mkn::mod::Module {
     return headers.count(extension(name));
   }
 
-  void run(mkn::mod::Context& ctx, YAML::Node const& node) KTHROW(std::exception) {
+  void run(mkn::mod::Context& ctx, mkn::mod::Node const& node) KTHROW(std::exception) {
     VALIDATE_NODE(node);
     auto const state = ctx.state();
     kul::os::PushDir pushd(state.projectDir);
 
     std::unordered_set<std::string> types{"cpp", "cxx", "cc", "h", "hpp"};
-    if (node["types"]) {
+    if (node.find("types")) {
       types.clear();
-      for (auto const& arg : mkn::kul::cli::asArgs(node["types"].Scalar()))
+      for (auto const& arg : mkn::kul::cli::asArgs(node["types"].str()))
         for (auto const& type : kul::String::SPLIT(arg, ":")) types.insert(type);
     }
 
@@ -252,8 +247,8 @@ class Module : public mkn::mod::Module {
     for (auto const& f : state.sourceFiles)
       if (types.count(extension(f))) files.insert(f);
 
-    if (node["paths"]) {
-      for (auto const& path : kul::cli::asArgs(node["paths"].Scalar())) {
+    if (node.find("paths")) {
+      for (auto const& path : kul::cli::asArgs(node["paths"].str())) {
         kul::Dir d(path);
         if (!d) KEXCEPT(kul::fsys::Exception, "Directory does not exist: ", d.path());
         for (auto const& file : d.files(1))
@@ -273,18 +268,18 @@ class Module : public mkn::mod::Module {
       checked.push_back(f.escm());
     }
 
-    if (node["fix"]) {
+    if (node.find("fix")) {
       auto const buildDir = state.extra.count("buildDir") ? state.extra.at("buildDir") : "bin";
       kul::Dir dir(buildDir);
       dir.mk();
       kul::File iwyu_out("iwyu.out", dir);
       kul::io::Writer(iwyu_out.full()) << out;
 
-      bool const system_last = node["system_last"] && node["system_last"].Scalar() == "true";
+      bool const system_last = node.find("system_last") && node["system_last"].str() == "true";
       std::map<std::string, std::string> before;
       if (system_last)
         for (auto const& file : checked) before[file] = read(file);
-      fix_includes(node["fix"].Scalar(), iwyu_out, checked, kul::Dir(state.projectDir).real());
+      fix_includes(node["fix"].str(), iwyu_out, checked, kul::Dir(state.projectDir).real());
       for (auto const& [file, text] : before) {
         auto const fixed = read(file);
         if (fixed == text) continue;
